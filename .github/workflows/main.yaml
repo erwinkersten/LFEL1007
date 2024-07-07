@@ -29,25 +29,37 @@ jobs:
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build and Push to ACR
+        id: push
         uses: docker/build-push-action@v6
         with:
           push: true
           tags: ${{ secrets.ACR_URL }}/isks/test:latest
           file: ./src/Dockerfile
   
-  provenance:
-      needs: [build]
-      permissions:
-        actions: read # for detecting the Github Actions environment.
-        id-token: write # for creating OIDC tokens for signing.
-        packages: write # for uploading attestations. (https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/container/README.md#known-issues)
-      # Must be refernced by a tag. https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/container/README.md#referencing-the-slsa-generator
-      if: github.repository == 'erwinkersten/LFEL1007'
-      uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.0.0
-      with:
-        private-repository: true
-        image: isksdemo1.azurecr.io/isks/test:latest
-        digest: ${{ needs.build.outputs.digest }}
-      secrets:
-        registry-username: ${{ secrets.ACR_USERNAME }}
-        registry-password: ${{ secrets.ACR_PASSWORD }}
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        id: attest
+        with:
+          subject-name: ${{ secrets.ACR_URL }}/isks/test:latest
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+          
+#   provenance:
+#       needs: [build]
+#       permissions:
+#         actions: read # for detecting the Github Actions environment.
+#         id-token: write # for creating OIDC tokens for signing.
+#         contents: write # for uploading attestations.
+#         packages: write # for uploading attestations. (https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/container/README.md#known-issues)
+#       # Must be refernced by a tag. https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/container/README.md#referencing-the-slsa-generator
+#       if: github.repository == 'erwinkersten/LFEL1007'
+#       uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.0.0
+#       with:
+#         private-repository: true
+#         rekor-log-public: true
+#         image: isksdemo1.azurecr.io/isks/test:latest
+#         digest: ${{ needs.build.outputs.digest }}
+#       secrets:
+#         registry-username: ${{ secrets.ACR_USERNAME }}
+#         registry-password: ${{ secrets.ACR_PASSWORD }}
