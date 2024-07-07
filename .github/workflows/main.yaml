@@ -46,6 +46,7 @@ jobs:
       uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.0.0
       with:
         image: isksdemo1.azurecr.io/isks/test:latest
+        digest: ${{ steps.build.outputs.digest }}
       secrets:
         registry-username: ${{ secrets.ACR_USERNAME }}
         registry-password: ${{ secrets.ACR_PASSWORD }}
