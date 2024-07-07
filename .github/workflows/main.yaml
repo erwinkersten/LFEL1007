@@ -32,7 +32,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          sbom: true
-          provenance: true
           tags: ${{ secrets.ACR_URL }}/isks/test:latest
           file: ./src/Dockerfile
