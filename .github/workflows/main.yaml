@@ -35,7 +35,7 @@ jobs:
           tags: ${{ secrets.ACR_URL }}/isks/test:latest
           file: ./src/Dockerfile
   
-  argocd-image-provenance:
+  provenance:
       needs: [build]
       permissions:
         actions: read # for detecting the Github Actions environment.
@@ -45,6 +45,7 @@ jobs:
       if: github.repository == 'erwinkersten/LFEL1007'
       uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.0.0
       with:
+        private-repository: true
         image: isksdemo1.azurecr.io/isks/test:latest
         digest: ${{ needs.build.outputs.digest }}
       secrets:
