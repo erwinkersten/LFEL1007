@@ -1,6 +1,3 @@
-# LFEL1007
+# TEST  
 
-signtest
-not signed
-sign again
-upd4
+SLSA Action test 
